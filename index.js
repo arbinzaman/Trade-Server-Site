@@ -47,6 +47,13 @@ async function run() {
         })
 
 
+
+          app.get("/items", async (req, res) => {
+            const email = req.query.email;
+            const query = {email:email};
+            const cursor = await itemsCollection.find(query).toArray();;
+            res.send(cursor);
+        });
           app.get("/items", async (req, res) => {
             const query = {};
             const cursor = await itemsCollection.find(query);
@@ -60,6 +67,7 @@ async function run() {
             const result = await itemsCollection.insertOne(items);
             res.send(result);
         });
+
 
 
         // app.post("/services", async (req, res) => {
@@ -95,13 +103,7 @@ async function run() {
         //     res.send(result);
         // });
 
-        // app.get("/reviews", async (req, res) => {
-        //     const query = {};
-        //     const cursor = await reviewCollection.find(query);
-        //     const reviews = await cursor.toArray();
-        //     const reverseArray = reviews.reverse();
-        //     res.send(reverseArray);
-        // });
+      
     }
     finally {
 
