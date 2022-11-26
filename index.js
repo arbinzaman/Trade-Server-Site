@@ -19,11 +19,12 @@ const uri = "mongodb+srv://arbin:6R9SMiuPbMiQZGSm@cluster0.nj2hkmy.mongodb.net/?
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 async function run() {
     try {
-        const userCollection = client.db('trade').collection('catagories');
+        const catagoriesCollection = client.db('trade').collection('catagories');
         const itemsCollection = client.db("trade").collection("itemsList");
+        const userCollection = client.db("trade").collection("usersList");
         app.get('/catagories', async (req, res) => {
             const query = {};
-            const cursor = userCollection.find(query);
+            const cursor = catagoriesCollection.find(query);
             const users = await cursor.toArray();
             res.send(users);
         })
@@ -31,32 +32,43 @@ async function run() {
         app.get("/catagories/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const cursor = await userCollection.find(query);
+            const cursor = await catagoriesCollection.find(query);
             const services = await cursor.toArray();
             res.send(services);
         });
 
-        
+
         // catagorie data load
         app.get('/category/:id', async (req, res) => {
             const id = req.params.id;
             const query = {};
-            const cursor = await userCollection.find(query).toArray();
+            const cursor = await catagoriesCollection.find(query).toArray();
             const category_news = cursor.filter(n => n.category_id === id);
             res.send(category_news);
         })
 
 
-
-          app.get("/items", async (req, res) => {
+        // Itmes that added for purchase with mail
+        app.get("/items", async (req, res) => {
             const email = req.query.email;
-            const query = {email:email};
+            const query = { email: email };
             const cursor = await itemsCollection.find(query).toArray();;
             res.send(cursor);
         });
-          app.get("/items", async (req, res) => {
+
+           // Itmes that added for purchase 
+        app.get("/items", async (req, res) => {
             const query = {};
             const cursor = await itemsCollection.find(query);
+            const reviews = await cursor.toArray();
+            const reverseArray = reviews.reverse();
+            res.send(reverseArray);
+        });
+
+        // userslist
+        app.get("/usersList", async (req, res) => {
+            const query = {};
+            const cursor = await userCollection.find(query);
             const reviews = await cursor.toArray();
             const reverseArray = reviews.reverse();
             res.send(reverseArray);
@@ -70,24 +82,28 @@ async function run() {
 
 
 
-        // app.post("/services", async (req, res) => {
-        //     const review = req.body;
-        //     const result = await userCollection.insertOne(review);
-        //     res.send(result);
-        // });
-
-
-   
+        app.post("/usersList", async (req, res) => {
+            const user = req.body;
+            const result = await userCollection.insertOne(user);
+            res.send(result);
+        });
 
 
 
-        // app.delete ("/reviews/:id",async(req,res)=>{
-        //     const id = req.params.id;
-        //     const query ={_id:ObjectId(id)}
-        //     const result =await reviewCollection.deleteOne(query);
-        //     console.log(result);
-        //     res.send(result);
-        // });
+
+        app.put ("/usersList/admin/:id",async(req,res)=>{
+            const id = req.params.id;
+            const filter ={_id:ObjectId(id)}
+            const option ={upsert: true};
+            const updateDoc ={
+                $set:{
+                    role : 'admin'
+                }
+            }
+            const result =await userCollection.updateOne(filter,option,updateDoc);
+            console.log(result);
+            res.send(result);
+        });
 
 
         // app.patch('/reviews/:id', async (req, res) => {
@@ -103,7 +119,7 @@ async function run() {
         //     res.send(result);
         // });
 
-      
+
     }
     finally {
 
