@@ -56,7 +56,7 @@ async function run() {
             res.send(cursor);
         });
 
-           // Itmes that added for purchase 
+        // Itmes that added for purchase 
         app.get("/items", async (req, res) => {
             const query = {};
             const cursor = await itemsCollection.find(query);
@@ -88,19 +88,31 @@ async function run() {
             res.send(result);
         });
 
+        // app.get("/usersList/admin/:email", async (req, res) => {
+        //     const email = req.params.email;
+        //     const query ={email}
+        //     const user = await userCollection.find(query);
+        //     res.send({ isAdmin:user?.role === 'admin'});
+        // });
+
+        app.get('/usersList/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email }
+            const user = await userCollection.findOne(query);
+            res.send({ isAdmin: user?.role === 'admin' });
+        })
 
 
-
-        app.put ("/usersList/admin/:id",async(req,res)=>{
+        app.put("/usersList/admin/:id", async (req, res) => {
             const id = req.params.id;
-            const filter ={_id:ObjectId(id)}
-            const option ={upsert: true};
-            const updateDoc ={
-                $set:{
-                    role : 'admin'
+            const filter = { _id: ObjectId(id) }
+            const option = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    role: 'admin'
                 }
             }
-            const result =await userCollection.updateOne(filter,option,updateDoc);
+            const result = await userCollection.updateOne(filter, updateDoc, option);
             console.log(result);
             res.send(result);
         });
