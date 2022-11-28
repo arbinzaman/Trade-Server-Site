@@ -13,7 +13,7 @@ app.use(express.json());
 
 
 
-// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0@cluster0.nj2hkmy.mongodb.net/?retryWrites=true&w=majority`;
+// const uri = `mUSER}:${process.env.DB_PASSWORD}@cluster0@cluster0.nj2hkmy.mongodb.net/?retryWrites=true&w=majority`;
 const uri = "mongodb+srv://arbin:6R9SMiuPbMiQZGSm@cluster0.nj2hkmy.mongodb.net/?retryWrites=true&w=majority";
 // console.log(uri);
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
@@ -22,10 +22,20 @@ async function run() {
         const catagoriesCollection = client.db('trade').collection('catagories');
         const itemsCollection = client.db("trade").collection("itemsList");
         const userCollection = client.db("trade").collection("usersList");
+        const productsCollection = client.db("trade").collection("myProducts");
+        const advertiseCollection = client.db("trade").collection("advertise");
         app.get('/catagories', async (req, res) => {
             const query = {};
             const cursor = catagoriesCollection.find(query);
             const users = await cursor.toArray();
+            res.send(users);
+        })
+
+        // dropdown option
+        app.get('/catagoriesoption', async (req, res) => {
+            const query = {};
+            const cursor = catagoriesCollection.find(query).project({ brand: 1 });
+            const users = await cursor.limit(3).toArray();
             res.send(users);
         })
 
@@ -70,8 +80,7 @@ async function run() {
             const query = {};
             const cursor = await userCollection.find(query);
             const reviews = await cursor.toArray();
-            const reverseArray = reviews.reverse();
-            res.send(reverseArray);
+            res.send(reviews);
         });
 
         app.post("/items", async (req, res) => {
@@ -79,6 +88,59 @@ async function run() {
             const result = await itemsCollection.insertOne(items);
             res.send(result);
         });
+        app.post("/catagories", async (req, res) => {
+            const items = req.body;
+            console.log(items);
+            const result = await catagoriesCollection.insertOne(items);
+            res.send(result);
+        });
+
+        // products collection
+        app.post("/myProducts", async (req, res) => {
+            const items = req.body;
+            console.log(items);
+            const result = await productsCollection.insertOne(items);
+            res.send(result);
+        });
+        app.get("/myProducts", async (req, res) => {
+            const query = {};
+            const cursor = await productsCollection.find(query);
+            const reviews = await cursor.toArray();
+            res.send(reviews);
+        });
+
+        app.delete("/myProducts/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await productsCollection.deleteOne(query);
+            console.log(result);
+            res.send(result);
+        });
+
+        // advertise
+
+        app.post("/advertise", async (req, res) => {
+            const items = req.body;
+            console.log(items);
+            const result = await advertiseCollection.insertOne(items);
+            res.send(result);
+        });
+
+        app.get("/advertise", async (req, res) => {
+            const query = {};
+            const cursor = await advertiseCollection.find(query);
+            const reviews = await cursor.toArray();
+            res.send(reviews);
+        });
+
+        app.delete("/advertise/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await advertiseCollection.deleteOne(query);
+            console.log(result);
+            res.send(result);
+        });
+
 
 
 
@@ -87,19 +149,20 @@ async function run() {
             const result = await userCollection.insertOne(user);
             res.send(result);
         });
-
-        // app.get("/usersList/admin/:email", async (req, res) => {
-        //     const email = req.params.email;
-        //     const query ={email}
-        //     const user = await userCollection.find(query);
-        //     res.send({ isAdmin:user?.role === 'admin'});
-        // });
-
+        // admin api
         app.get('/usersList/admin/:email', async (req, res) => {
             const email = req.params.email;
             const query = { email }
             const user = await userCollection.findOne(query);
             res.send({ isAdmin: user?.role === 'admin' });
+        })
+
+        // sellerapi
+        app.get('/usersList/seller/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email }
+            const user = await userCollection.findOne(query);
+            res.send({ isSeller: user?.role === 'seller' });
         })
 
 
@@ -118,18 +181,15 @@ async function run() {
         });
 
 
-        // app.patch('/reviews/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const status = req.body.status
-        //     const query = { _id: ObjectId(id) }
-        //     const updatedDoc = {
-        //         $set: {
-        //             status: status
-        //         }
-        //     }
-        //     const result = await orderCollection.updateOne(query, updatedDoc);
-        //     res.send(result);
-        // });
+
+        app.delete("/usersList/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await userCollection.deleteOne(query);
+            console.log(result);
+            res.send(result);
+        });
+
 
 
     }
