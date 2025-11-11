@@ -6,13 +6,24 @@ const port = process.env.PORT || 5000;
 require('dotenv').config();
 
 // middle ware
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+    origin: '*',          // allow requests from any origin
+    methods: ['GET','POST','PUT','DELETE','OPTIONS'],
+    allowedHeaders: ['Content-Type','Authorization']
+}));
 
-
-
-
-
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+    );
+    res.header(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    );
+    next();
+});
 
 // const uri = "mongodb+srv://arbin:6R9SMiuPbMiQZGSm@cluster0.nj2hkmy.mongodb.net/?retryWrites=true&w=majority";
 // console.log(uri);
@@ -40,13 +51,22 @@ async function run() {
             res.send(users);
         })
 
+        // app.get("/catagories/:id", async (req, res) => {
+        //     const id = req.params.id;
+        //     const query = { _id: ObjectId(id) };
+        //     const cursor = await catagoriesCollection.find(query);
+        //     const services = await cursor.toArray();
+        //     res.send(services);
+        // });
+
         app.get("/catagories/:id", async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const cursor = await catagoriesCollection.find(query);
-            const services = await cursor.toArray();
-            res.send(services);
-        });
+    const id = req.params.id; // "1", "2", etc
+    const query = { category_id: id }; // use your custom field
+    const cursor = await catagoriesCollection.find(query);
+    const services = await cursor.toArray();
+    res.send(services);
+});
+
 
 
         // catagorie data load
