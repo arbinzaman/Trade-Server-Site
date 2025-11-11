@@ -14,8 +14,9 @@ app.use(express.json());
 
 
 
-const uri = "mongodb+srv://arbin:6R9SMiuPbMiQZGSm@cluster0.nj2hkmy.mongodb.net/?retryWrites=true&w=majority";
+// const uri = "mongodb+srv://arbin:6R9SMiuPbMiQZGSm@cluster0.nj2hkmy.mongodb.net/?retryWrites=true&w=majority";
 // console.log(uri);
+const uri = "mongodb+srv://redoxop45_db_user:a1s1d1f1@trade-project.kuqdbsb.mongodb.net/?appName=trade-project";
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 async function run() {
     try {
